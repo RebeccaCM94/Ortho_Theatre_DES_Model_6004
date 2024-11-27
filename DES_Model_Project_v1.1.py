@@ -21,3 +21,11 @@ class g:
     #how many other patients on trauma caseload?
     #how many died
     
+#Class representing patients coming in to the hospital
+#Their attributes - ID, op duration time
+#The ID is passed in when a new patient is created
+class Patient:
+    def __init__(self, p_id):
+        self.id = p_id
+        self.op_duration_time = 0
+
