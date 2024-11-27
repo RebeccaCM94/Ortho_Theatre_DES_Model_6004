@@ -59,4 +59,31 @@ class Model:
         # the model
         self.mean_duration_time = 0
 
-        
+    # A generator function that represents the DES generator for patient
+    # arrivals
+    def generator_patient_arrivals(self):
+        # We use an infinite loop here to keep doing this indefinitely whilst
+        # the simulation runs
+        while True:
+            # Increment the patient counter by 1
+            self.patient_counter += 1
+            
+            # Create a new patient - an instance of the Patient Class we
+            # defined above.
+            p = Patient(self.patient_counter)      
+
+            # Tell SimPy to start up the attend_clinic generator function with
+            # this patient (the generator function that will model the
+            # patient's journey through the system)
+            self.env.process(self.attend_clinic(p))
+
+            # Randomly sample the time to the next patient arriving. Here, we
+            # sample from an exponential distribution (common for inter-arrival
+            # times), and pass in a lambda value of 1 / mean.  The mean
+            # inter-arrival time is stored in the g class.
+            sampled_inter = random.expovariate(1.0 / g.patient_inter_emerg)
+
+            # Freeze this instance of this function in place until the
+            # inter-arrival time we sampled above has elapsed. 
+            yield self.env.timeout(sampled_inter)
+
