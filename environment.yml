@@ -1,0 +1,12 @@
+name: project_env
+channels:
+  - defaults
+dependencies:
+  - python=3.11.4
+  - ipykernel
+  - pip:
+    - simpy==4.0.2
+    - numpy
+    - pandas
+    - matplotlib
+prefix: C:\Users\dan\anaconda3\envs\des
