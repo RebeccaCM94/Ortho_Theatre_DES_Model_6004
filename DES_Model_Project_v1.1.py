@@ -7,6 +7,7 @@ import pandas as pd
 
 #Variables calculated from 1 Jan 2023 - 31 Oct 2024
 #emergency procedures - do the same for elective procedures
+#everything in minutes
 class g:
     patient_inter_emerg = 720 #2/day
     avg_emergency_ops_per_day = 7
@@ -27,7 +28,8 @@ class g:
 class Patient:
     def __init__(self, p_id):
         self.id = p_id
-        self.op_duration_time = 0
+        #self.op_duration_time = 0
+        self.q_time_nurse = 0
 
 #Model class
 class Model:
@@ -52,7 +54,9 @@ class Model:
         # the patient ID (which we'll use as the index).
         self.results_df = pd.DataFrame()
         self.results_df["Patient ID"] = [1]
-        self.results_df["Duration of Op"] = [0.0]
+        #self.results_df["Duration of Op"] = [0.0]
+        self.results_df["Q Time Nurse"] = [0.0]
+        self.results_df["Time with Nurse"] = [0.0]
         self.results_df.set_index("Patient ID", inplace=True)
 
     # Create an attribute to store the mean queuing times across this run of
@@ -87,3 +91,21 @@ class Model:
             # inter-arrival time we sampled above has elapsed. 
             yield self.env.timeout(sampled_inter)
 
+    # A generator function that represents the pathway for a patient going
+    # through A+E.  Here the pathway is extremely simple - a patient
+    # arrives, waits to see a nurse, and then leaves.
+    # The patient object is passed in to the generator function so we can
+    # extract information from / record information to it
+    def attend_AE(self, patient):
+        # Record the time the patient started queuing for a nurse
+        start_q_nurse = self.env.now
+
+        # This code says request a nurse resource, and do all of the following
+        # block of code with that nurse resource held in place (and therefore
+        # not usable by another patient)
+        with self.nurse.request() as req:
+            # Freeze the function until the request for a nurse can be met.
+            # The patient is currently queuing.
+            yield req
+
+    
